@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-16 14:27:15
- * @LastEditTime: 2023-10-25 11:20:09
+ * @LastEditTime: 2023-10-26 09:03:03
  */
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
@@ -39,7 +39,7 @@ export default function Circle(props) {
 
   return (
     <>
-      <circle cx={cx} cy={cy} r={r} fill={fill} stroke={stroke} stroke-width="4" />
+      <circle cx={cx} cy={cy} r={r} fill={fill} stroke={stroke} stroke-width="4" data-circleid={props.circleId} />
     </>
   )
 }

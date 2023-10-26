@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-10-25 14:45:55
+ * @LastEditTime: 2023-10-26 09:56:04
  */
 import RectBound from '@/views/module/rect'
 import Circle from '@/views/module/circle'
@@ -13,16 +13,19 @@ import "@/App.css"
 import { useStore } from 'react-redux'
 import FollowMouse from '@/views/comps/followMouse'
 function App(props) {
-
+  const [circleList, setCircleList] = useState({
+    circle1: {},
+    circle2: {}
+  })
   const [initCircleValue, setInitCircleValue] = useState({
     strokeActiveColor: '',
     circleCx: '',
     circleCy: ''
   })
   const svgDomRef = useRef(null)
-  const circleDomRef = useRef(null)
+
   const store = useStore()
-  let circleReducerMap = store.getState().initCirclePropsReducer
+  // let circleReducerMap = store.getState().initCirclePropsReducer
   var mouseX = 0
   var mouseY = 0
   var offsetX = 0
@@ -98,6 +101,12 @@ function App(props) {
         circleCx: newElementX,
         circleCy: newElementY
       })
+      circleList[myEvent.target.dataset.circleid] = {
+        ...initCircleValue,
+        circleCx: newElementX,
+        circleCy: newElementY
+      }
+      setCircleList(circleList)
     }
   }
 
@@ -114,8 +123,13 @@ function App(props) {
         id="mySvg"
       >
         <RectBound ></RectBound>
-
-        <Circle ref={circleDomRef} initCircleValue={initCircleValue} ></Circle>
+        {
+          Object.keys(circleList).map((circleKey, idx) => {
+            return <Circle key={idx} initCircleValue={circleList[circleKey]} circleId={circleKey}></Circle>
+          })
+        }
+        {/* <Circle initCircleValue={initCircleValue} circleId='circle1'></Circle>
+        <Circle initCircleValue={initCircleValue} circleId='circle2'></Circle> */}
         {/* <Circle initCircleValue={initCircleValue}></Circle> */}
 
       </svg>
