@@ -1,3 +1,6 @@
 #moveTest{
   position: absolute;
 }
+circle{
+  pointer-events: all;
+}

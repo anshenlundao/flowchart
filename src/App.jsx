@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-10-26 09:56:04
+ * @LastEditTime: 2023-10-26 15:50:44
  */
 import RectBound from '@/views/module/rect'
 import Circle from '@/views/module/circle'
@@ -22,14 +22,20 @@ function App(props) {
     circleCx: '',
     circleCy: ''
   })
+  // var initCircleValue = {
+  //   strokeActiveColor: '',
+  //   circleCx: '',
+  //   circleCy: ''
+  // }
   const svgDomRef = useRef(null)
 
-  const store = useStore()
+  // const store = useStore()
   // let circleReducerMap = store.getState().initCirclePropsReducer
   var mouseX = 0
   var mouseY = 0
   var offsetX = 0
   var offsetY = 0
+  var myDownEvent;
   useEffect(() => {
 
     followMouseMove(svgDomRef.current, {
@@ -38,14 +44,18 @@ function App(props) {
         if (downEvent.target.nodeName == 'circle') {
           // store.subscribe(() => {
           // circleReducerMap = store.getState().initCirclePropsReducer
+          myDownEvent = downEvent
           handleCircle({ ifDown: true }, downEvent)
           // })
         }
       }, moveCb: (moveEvent) => {
-        handleCircle({ ifMove: true }, moveEvent)
+        if (moveEvent.target.nodeName == 'circle') {
+          handleCircle({ ifMove: true }, moveEvent)
+
+        }
       }
     })
-
+    // 传入空数组，只会在页面加载完成时候触发一次，不传入修改state都会触发
 
   }, [])
 
@@ -71,9 +81,12 @@ function App(props) {
   const handleCircle = ({ ifActiveStroke, ifDown, ifMove }, myEvent) => {
     // 有才能进入
     if (typeof ifActiveStroke != 'undefined') {
+      console.log('ifActiveStroke', ifActiveStroke);
       setInitCircleValue({
         strokeActiveColor: ifActiveStroke ? globalVariable.defaultCircle.activeCircleStrokeColor : globalVariable.defaultCircle.circleStrokeColor
       })
+      console.log('initCircleValue', initCircleValue)
+      // initCircleValue.strokeActiveColor = ifActiveStroke ? globalVariable.defaultCircle.activeCircleStrokeColor : globalVariable.defaultCircle.circleStrokeColor
     }
     // 记录点击的操作
     if (typeof ifDown != 'undefined') {
@@ -97,12 +110,19 @@ function App(props) {
       // store.dispatch({ type: 'update', data: { key: 'cy', value: newElementY } })
       console.log(newElementX);
       setInitCircleValue({
-        ...initCircleValue,
+        // ...initCircleValue,
         circleCx: newElementX,
         circleCy: newElementY
       })
-      circleList[myEvent.target.dataset.circleid] = {
-        ...initCircleValue,
+      // initCircleValue = {
+      //   // ...initCircleValue,
+      //   circleCx: newElementX,
+      //   circleCy: newElementY
+      // }
+      console.log(initCircleValue);
+      // 这里传入点击的dom的dataset属性
+      circleList[myDownEvent.target.dataset.circleid] = {
+        // ...initCircleValue,
         circleCx: newElementX,
         circleCy: newElementY
       }
