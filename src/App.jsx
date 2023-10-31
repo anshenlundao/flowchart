@@ -2,7 +2,13 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-10-26 15:50:44
+ * @LastEditTime: 2023-10-31 14:17:50
+ * 在React中更新数组中的对象后，界面的更新取决于你如何管理状态和触发重新渲染。
+
+一种常见的做法是使用useState钩子来管理数组的状态，并使用set函数来更新数组。
+当你"更新数组"中的对象时，确保创建一个新的"数组副本"，
+而不是直接修改原始数组。这样做可以确保React
+能够检测到数组的变化并重新渲染组件。
  */
 import RectBound from '@/views/module/rect'
 import Circle from '@/views/module/circle'
@@ -15,14 +21,19 @@ import FollowMouse from '@/views/comps/followMouse'
 function App(props) {
   const [circleList, setCircleList] = useState({
     circle1: {},
-    circle2: {}
+    circle2: {},
+    circle3: {},
+    circle4: {},
+    circle5: {},
+    circle6: {},
+    circle7: {},
   })
-  const [initCircleValue, setInitCircleValue] = useState({
-    strokeActiveColor: '',
-    circleCx: '',
-    circleCy: ''
-  })
-  // var initCircleValue = {
+  // const [initCircleValue, setInitCircleValue] = useState({
+  //   strokeActiveColor: '',
+  //   circleCx: '',
+  //   circleCy: ''
+  // })
+  // var initCircleValueObj = {
   //   strokeActiveColor: '',
   //   circleCx: '',
   //   circleCy: ''
@@ -53,6 +64,9 @@ function App(props) {
           handleCircle({ ifMove: true }, moveEvent)
 
         }
+      },
+      upCb: () => {
+        handleCircle({ ifUp: true })
       }
     })
     // 传入空数组，只会在页面加载完成时候触发一次，不传入修改state都会触发
@@ -78,14 +92,14 @@ function App(props) {
    * true:激活边色 
    * false:不激活边色
    */
-  const handleCircle = ({ ifActiveStroke, ifDown, ifMove }, myEvent) => {
+  const handleCircle = ({ ifActiveStroke, ifDown, ifMove, ifUp }, myEvent) => {
     // 有才能进入
     if (typeof ifActiveStroke != 'undefined') {
       console.log('ifActiveStroke', ifActiveStroke);
-      setInitCircleValue({
-        strokeActiveColor: ifActiveStroke ? globalVariable.defaultCircle.activeCircleStrokeColor : globalVariable.defaultCircle.circleStrokeColor
-      })
-      console.log('initCircleValue', initCircleValue)
+      // setInitCircleValue({
+      //   strokeActiveColor: ifActiveStroke ? globalVariable.defaultCircle.activeCircleStrokeColor : globalVariable.defaultCircle.circleStrokeColor
+      // })
+      // console.log('initCircleValue', initCircleValue)
       // initCircleValue.strokeActiveColor = ifActiveStroke ? globalVariable.defaultCircle.activeCircleStrokeColor : globalVariable.defaultCircle.circleStrokeColor
     }
     // 记录点击的操作
@@ -97,6 +111,12 @@ function App(props) {
       offsetX = mouseX - (circleInfo.x + circleInfo.width / 2)
       offsetY = mouseY - (circleInfo.y + circleInfo.height / 2)
       console.log(mouseX);
+      var circleListCopy = JSON.parse(JSON.stringify(circleList))
+      circleListCopy[myDownEvent.target.dataset.circleid] = {
+        strokeActiveColor: globalVariable.defaultCircle.activeCircleStrokeColor
+
+      }
+      setCircleList(circleListCopy)
 
     }
     // 记录移动的操作
@@ -106,27 +126,31 @@ function App(props) {
       // 计算元素的新位置
       let newElementX = newMouseX - offsetX
       let newElementY = newMouseY - offsetY
-      // store.dispatch({ type: 'update', data: { key: 'cx', value: newElementX } })
-      // store.dispatch({ type: 'update', data: { key: 'cy', value: newElementY } })
       console.log(newElementX);
-      setInitCircleValue({
-        // ...initCircleValue,
-        circleCx: newElementX,
-        circleCy: newElementY
-      })
-      // initCircleValue = {
+      // setInitCircleValue({
       //   // ...initCircleValue,
       //   circleCx: newElementX,
       //   circleCy: newElementY
-      // }
-      console.log(initCircleValue);
+      // })
+      console.log(circleList);
+      var circleListCopy = JSON.parse(JSON.stringify(circleList))
       // 这里传入点击的dom的dataset属性
-      circleList[myDownEvent.target.dataset.circleid] = {
-        // ...initCircleValue,
+      circleListCopy[myDownEvent.target.dataset.circleid] = {
+        strokeActiveColor: circleList[myDownEvent.target.dataset.circleid].strokeActiveColor,
         circleCx: newElementX,
         circleCy: newElementY
       }
-      setCircleList(circleList)
+      setCircleList(circleListCopy)
+    }
+    if (typeof ifUp != 'undefined') {
+      // debugger
+      var circleListCopy = JSON.parse(JSON.stringify(circleList))
+      // 这里传入点击的dom的dataset属性
+      circleListCopy[myDownEvent.target.dataset.circleid] = {
+        strokeActiveColor: globalVariable.defaultCircle.circleStrokeColor,
+
+      }
+      setCircleList(circleListCopy)
     }
   }
 
@@ -137,7 +161,7 @@ function App(props) {
         baseProfile="full"
         width="100%" height="500"
         xmlns="http://www.w3.org/2000/svg"
-        onClick={clickSvg}
+        // onClick={clickSvg}
 
         ref={svgDomRef}
         id="mySvg"

@@ -16,7 +16,7 @@ export function generateHexColor() {
  * 
  * @param {*} param1 
  */
-export function followMouseMove(selector,{downCb,moveCb}){
+export function followMouseMove(selector,{downCb,moveCb,upCb}){
   var myDom;
   if(typeof selector=="string"){
      myDom = document.querySelector(selector)
@@ -29,6 +29,7 @@ export function followMouseMove(selector,{downCb,moveCb}){
     
   })
   document.addEventListener('mouseup', () => {
+    upCb&&upCb()
     document.removeEventListener('mousemove',moveCb)
   })
 }
