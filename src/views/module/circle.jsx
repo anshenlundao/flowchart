@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-16 14:27:15
- * @LastEditTime: 2023-10-31 10:28:37
+ * @LastEditTime: 2023-11-21 11:05:16
  */
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
@@ -17,7 +17,7 @@ export default function Circle(props) {
   const [cy, setCy] = useState(globalVariable.defaultCircle.circleCy)
   const [r, setR] = useState(globalVariable.defaultCircle.circleR)
   useEffect(() => {
-    console.log('圆的一开始加载', props)
+    // console.log('圆的一开始加载', props)
 
     // console.log('圆的一开始加载store', circleReducerMap)
     if (props.initCircleValue?.strokeActiveColor) {

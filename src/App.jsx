@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-10-31 14:17:50
+ * @LastEditTime: 2023-11-21 17:28:14
  * 在React中更新数组中的对象后，界面的更新取决于你如何管理状态和触发重新渲染。
 
 一种常见的做法是使用useState钩子来管理数组的状态，并使用set函数来更新数组。
@@ -12,12 +12,11 @@
  */
 import RectBound from '@/views/module/rect'
 import Circle from '@/views/module/circle'
-import { useState, useEffect, useRef, useContext } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import globalVariable from '@/config/init'
 import { followMouseMove } from '@/utils/tools'
 import "@/App.css"
 import { useStore } from 'react-redux'
-import FollowMouse from '@/views/comps/followMouse'
 function App(props) {
   const [circleList, setCircleList] = useState({
     circle1: {},
@@ -28,33 +27,35 @@ function App(props) {
     circle6: {},
     circle7: {},
   })
-  // const [initCircleValue, setInitCircleValue] = useState({
-  //   strokeActiveColor: '',
-  //   circleCx: '',
-  //   circleCy: ''
-  // })
-  // var initCircleValueObj = {
-  //   strokeActiveColor: '',
-  //   circleCx: '',
-  //   circleCy: ''
-  // }
+
+  function createCircle({ num }) {
+    let circleListObj = {}
+    for (let i = 0; i < num; i++) {
+      circleListObj['circle' + (i + 1)] = {}
+    }
+    return circleListObj
+  }
+  // 生成指定个数的圆
+  // var circleListObj = createCircle({ num: 10 })
+
+  // setCircleList(circleListObj)
+
   const svgDomRef = useRef(null)
 
-  // const store = useStore()
-  // let circleReducerMap = store.getState().initCirclePropsReducer
   var mouseX = 0
   var mouseY = 0
   var offsetX = 0
   var offsetY = 0
   var myDownEvent;
   useEffect(() => {
-
+    var circleListObj = createCircle({ num: 30 })
+    // console.log(circleListObj)
+    setCircleList(circleListObj)
+    console.log(circleList);
     followMouseMove(svgDomRef.current, {
       downCb: (downEvent) => {
         console.log(downEvent);
         if (downEvent.target.nodeName == 'circle') {
-          // store.subscribe(() => {
-          // circleReducerMap = store.getState().initCirclePropsReducer
           myDownEvent = downEvent
           handleCircle({ ifDown: true }, downEvent)
           // })
@@ -69,21 +70,11 @@ function App(props) {
         handleCircle({ ifUp: true })
       }
     })
-    // 传入空数组，只会在页面加载完成时候触发一次，不传入修改state都会触发
+    // 传入空数组，只会在页面加载完成时候触发一次
 
   }, [])
 
-  const clickSvg = (e) => {
-    console.log('点击svg', e);
-    // 如果当前对象是circle
-    // debugger
-    if (e.target.nodeName == 'circle') {
-      handleCircle({ ifActiveStroke: true })
 
-    } else {
-      handleCircle({ ifActiveStroke: false })
-    }
-  }
 
   // 处理圆的逻辑
   /**
@@ -95,12 +86,6 @@ function App(props) {
   const handleCircle = ({ ifActiveStroke, ifDown, ifMove, ifUp }, myEvent) => {
     // 有才能进入
     if (typeof ifActiveStroke != 'undefined') {
-      console.log('ifActiveStroke', ifActiveStroke);
-      // setInitCircleValue({
-      //   strokeActiveColor: ifActiveStroke ? globalVariable.defaultCircle.activeCircleStrokeColor : globalVariable.defaultCircle.circleStrokeColor
-      // })
-      // console.log('initCircleValue', initCircleValue)
-      // initCircleValue.strokeActiveColor = ifActiveStroke ? globalVariable.defaultCircle.activeCircleStrokeColor : globalVariable.defaultCircle.circleStrokeColor
     }
     // 记录点击的操作
     if (typeof ifDown != 'undefined') {
@@ -110,7 +95,7 @@ function App(props) {
       const circleInfo = myEvent.target.getBoundingClientRect()
       offsetX = mouseX - (circleInfo.x + circleInfo.width / 2)
       offsetY = mouseY - (circleInfo.y + circleInfo.height / 2)
-      console.log(mouseX);
+      console.log(mouseX, circleList);
       var circleListCopy = JSON.parse(JSON.stringify(circleList))
       circleListCopy[myDownEvent.target.dataset.circleid] = {
         strokeActiveColor: globalVariable.defaultCircle.activeCircleStrokeColor
@@ -124,19 +109,14 @@ function App(props) {
       let newMouseX = myEvent.clientX
       let newMouseY = myEvent.clientY
       // 计算元素的新位置
-      let newElementX = newMouseX - offsetX
-      let newElementY = newMouseY - offsetY
+      let newElementX = newMouseX - Math.abs(offsetX)
+      let newElementY = newMouseY - Math.abs(offsetY)
       console.log(newElementX);
-      // setInitCircleValue({
-      //   // ...initCircleValue,
-      //   circleCx: newElementX,
-      //   circleCy: newElementY
-      // })
       console.log(circleList);
       var circleListCopy = JSON.parse(JSON.stringify(circleList))
       // 这里传入点击的dom的dataset属性
       circleListCopy[myDownEvent.target.dataset.circleid] = {
-        strokeActiveColor: circleList[myDownEvent.target.dataset.circleid].strokeActiveColor,
+        // strokeActiveColor: circleList[myDownEvent.target.dataset.circleid].strokeActiveColor,
         circleCx: newElementX,
         circleCy: newElementY
       }
@@ -161,8 +141,6 @@ function App(props) {
         baseProfile="full"
         width="100%" height="500"
         xmlns="http://www.w3.org/2000/svg"
-        // onClick={clickSvg}
-
         ref={svgDomRef}
         id="mySvg"
       >
@@ -172,13 +150,11 @@ function App(props) {
             return <Circle key={idx} initCircleValue={circleList[circleKey]} circleId={circleKey}></Circle>
           })
         }
-        {/* <Circle initCircleValue={initCircleValue} circleId='circle1'></Circle>
-        <Circle initCircleValue={initCircleValue} circleId='circle2'></Circle> */}
-        {/* <Circle initCircleValue={initCircleValue}></Circle> */}
+
 
       </svg>
-      {/* <FollowMouse></FollowMouse> */}
-      <div id='moveTest'>快快快</div>
+
+
     </>
   )
 }
