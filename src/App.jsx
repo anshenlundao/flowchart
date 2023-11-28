@@ -2,13 +2,17 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-11-21 17:28:14
+ * @LastEditTime: 2023-11-28 09:33:35
  * 在React中更新数组中的对象后，界面的更新取决于你如何管理状态和触发重新渲染。
 
 一种常见的做法是使用useState钩子来管理数组的状态，并使用set函数来更新数组。
 当你"更新数组"中的对象时，确保创建一个新的"数组副本"，
 而不是直接修改原始数组。这样做可以确保React
 能够检测到数组的变化并重新渲染组件。
+
+解决动态生成圆，首先执行圆的函数一定要放在useEffect中，
+其次要去掉main.jsx中strict模式，strict模式会让useEffect执行两次，
+然后获取圆的个数不能直接使用circleList，需要使用getList()
  */
 import RectBound from '@/views/module/rect'
 import Circle from '@/views/module/circle'
@@ -17,15 +21,33 @@ import globalVariable from '@/config/init'
 import { followMouseMove } from '@/utils/tools'
 import "@/App.css"
 import { useStore } from 'react-redux'
+import { useGetState } from '@/hooks/setState'
 function App(props) {
-  const [circleList, setCircleList] = useState({
-    circle1: {},
-    circle2: {},
-    circle3: {},
-    circle4: {},
-    circle5: {},
-    circle6: {},
-    circle7: {},
+  const [circleList, setCircleList, getList] = useGetState({
+    // circle1: {},
+    // circle2: {},
+    // circle3: {},
+    // circle4: {},
+    // circle5: {},
+    // circle6: {},
+    // circle7: {},
+    // circle14: {},
+    // circle15: {},
+    // circle16: {},
+    // circle17: {},
+    // circle18: {},
+    // circle19: {},
+    // circle20: {},
+    // circle21: {},
+    // circle22: {},
+    // circle23: {},
+    // circle24: {},
+    // circle25: {},
+    // circle26: {},
+    // circle27: {},
+    // circle28: {},
+    // circle29: {},
+    // circle30: {}
   })
 
   function createCircle({ num }) {
@@ -35,7 +57,7 @@ function App(props) {
     }
     return circleListObj
   }
-  // 生成指定个数的圆
+  // 生成指定个数的圆,在这里不行，会循环了
   // var circleListObj = createCircle({ num: 10 })
 
   // setCircleList(circleListObj)
@@ -49,9 +71,14 @@ function App(props) {
   var myDownEvent;
   useEffect(() => {
     var circleListObj = createCircle({ num: 30 })
-    // console.log(circleListObj)
     setCircleList(circleListObj)
-    console.log(circleList);
+    console.log(getList());
+
+    function moveCb(moveEvent) {
+      if (moveEvent.target.nodeName == 'circle') {
+        handleCircle({ ifMove: true }, moveEvent)
+      }
+    }
     followMouseMove(svgDomRef.current, {
       downCb: (downEvent) => {
         console.log(downEvent);
@@ -70,6 +97,7 @@ function App(props) {
         handleCircle({ ifUp: true })
       }
     })
+
     // 传入空数组，只会在页面加载完成时候触发一次
 
   }, [])
@@ -95,12 +123,15 @@ function App(props) {
       const circleInfo = myEvent.target.getBoundingClientRect()
       offsetX = mouseX - (circleInfo.x + circleInfo.width / 2)
       offsetY = mouseY - (circleInfo.y + circleInfo.height / 2)
-      console.log(mouseX, circleList);
-      var circleListCopy = JSON.parse(JSON.stringify(circleList))
+      console.log(offsetX, offsetY);
+      // console.log(circleList);
+      var circleListCopy = JSON.parse(JSON.stringify(getList()))
+      console.log(circleListCopy);
       circleListCopy[myDownEvent.target.dataset.circleid] = {
         strokeActiveColor: globalVariable.defaultCircle.activeCircleStrokeColor
 
       }
+      console.log(circleListCopy);
       setCircleList(circleListCopy)
 
     }
@@ -109,11 +140,11 @@ function App(props) {
       let newMouseX = myEvent.clientX
       let newMouseY = myEvent.clientY
       // 计算元素的新位置
-      let newElementX = newMouseX - Math.abs(offsetX)
-      let newElementY = newMouseY - Math.abs(offsetY)
-      console.log(newElementX);
+      let newElementX = newMouseX - offsetX
+      let newElementY = newMouseY - offsetY
+      console.log(newElementX, newElementY);
       console.log(circleList);
-      var circleListCopy = JSON.parse(JSON.stringify(circleList))
+      var circleListCopy = JSON.parse(JSON.stringify(getList()))
       // 这里传入点击的dom的dataset属性
       circleListCopy[myDownEvent.target.dataset.circleid] = {
         // strokeActiveColor: circleList[myDownEvent.target.dataset.circleid].strokeActiveColor,
@@ -124,7 +155,7 @@ function App(props) {
     }
     if (typeof ifUp != 'undefined') {
       // debugger
-      var circleListCopy = JSON.parse(JSON.stringify(circleList))
+      var circleListCopy = JSON.parse(JSON.stringify(getList()))
       // 这里传入点击的dom的dataset属性
       circleListCopy[myDownEvent.target.dataset.circleid] = {
         strokeActiveColor: globalVariable.defaultCircle.circleStrokeColor,
@@ -144,14 +175,12 @@ function App(props) {
         ref={svgDomRef}
         id="mySvg"
       >
-        <RectBound ></RectBound>
+        {/* <RectBound ></RectBound> */}
         {
           Object.keys(circleList).map((circleKey, idx) => {
             return <Circle key={idx} initCircleValue={circleList[circleKey]} circleId={circleKey}></Circle>
           })
         }
-
-
       </svg>
 
 
