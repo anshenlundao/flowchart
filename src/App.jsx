@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-11-28 09:33:35
+ * @LastEditTime: 2023-12-08 11:27:05
  * 在React中更新数组中的对象后，界面的更新取决于你如何管理状态和触发重新渲染。
 
 一种常见的做法是使用useState钩子来管理数组的状态，并使用set函数来更新数组。
@@ -22,32 +22,12 @@ import { followMouseMove } from '@/utils/tools'
 import "@/App.css"
 import { useStore } from 'react-redux'
 import { useGetState } from '@/hooks/setState'
+import TreeChart from './views/module/treeChart'
 function App(props) {
   const [circleList, setCircleList, getList] = useGetState({
     // circle1: {},
     // circle2: {},
     // circle3: {},
-    // circle4: {},
-    // circle5: {},
-    // circle6: {},
-    // circle7: {},
-    // circle14: {},
-    // circle15: {},
-    // circle16: {},
-    // circle17: {},
-    // circle18: {},
-    // circle19: {},
-    // circle20: {},
-    // circle21: {},
-    // circle22: {},
-    // circle23: {},
-    // circle24: {},
-    // circle25: {},
-    // circle26: {},
-    // circle27: {},
-    // circle28: {},
-    // circle29: {},
-    // circle30: {}
   })
 
   function createCircle({ num }) {
@@ -69,23 +49,17 @@ function App(props) {
   var offsetX = 0
   var offsetY = 0
   var myDownEvent;
+  var circleId;
   useEffect(() => {
     var circleListObj = createCircle({ num: 30 })
     setCircleList(circleListObj)
-    console.log(getList());
 
-    function moveCb(moveEvent) {
-      if (moveEvent.target.nodeName == 'circle') {
-        handleCircle({ ifMove: true }, moveEvent)
-      }
-    }
     followMouseMove(svgDomRef.current, {
       downCb: (downEvent) => {
         console.log(downEvent);
         if (downEvent.target.nodeName == 'circle') {
           myDownEvent = downEvent
           handleCircle({ ifDown: true }, downEvent)
-          // })
         }
       }, moveCb: (moveEvent) => {
         if (moveEvent.target.nodeName == 'circle') {
@@ -93,12 +67,12 @@ function App(props) {
 
         }
       },
-      upCb: () => {
-        handleCircle({ ifUp: true })
+      upCb: (upEvent) => {
+        handleCircle({ ifUp: true }, upEvent)
       }
     })
 
-    // 传入空数组，只会在页面加载完成时候触发一次
+    // 传入空数组，在非strict模式下，只会在页面加载完成时候触发一次
 
   }, [])
 
@@ -119,19 +93,24 @@ function App(props) {
     if (typeof ifDown != 'undefined') {
       mouseX = myEvent.clientX;
       mouseY = myEvent.clientY;
+
       // 这里要获取用户每次点击图形的位置信息
       const circleInfo = myEvent.target.getBoundingClientRect()
       offsetX = mouseX - (circleInfo.x + circleInfo.width / 2)
       offsetY = mouseY - (circleInfo.y + circleInfo.height / 2)
-      console.log(offsetX, offsetY);
-      // console.log(circleList);
       var circleListCopy = JSON.parse(JSON.stringify(getList()))
-      console.log(circleListCopy);
+      // 表明点击圆之前上一个也点击了圆,实现点击下一个圆上一个圆颜色去掉
+      if (circleId) {
+        circleListCopy[circleId] = {
+          strokeActiveColor: globalVariable.defaultCircle.circleStrokeColor
+
+        }
+        setCircleList(circleListCopy)
+      }
       circleListCopy[myDownEvent.target.dataset.circleid] = {
         strokeActiveColor: globalVariable.defaultCircle.activeCircleStrokeColor
 
       }
-      console.log(circleListCopy);
       setCircleList(circleListCopy)
 
     }
@@ -142,26 +121,25 @@ function App(props) {
       // 计算元素的新位置
       let newElementX = newMouseX - offsetX
       let newElementY = newMouseY - offsetY
-      console.log(newElementX, newElementY);
-      console.log(circleList);
       var circleListCopy = JSON.parse(JSON.stringify(getList()))
       // 这里传入点击的dom的dataset属性
       circleListCopy[myDownEvent.target.dataset.circleid] = {
-        // strokeActiveColor: circleList[myDownEvent.target.dataset.circleid].strokeActiveColor,
         circleCx: newElementX,
         circleCy: newElementY
       }
       setCircleList(circleListCopy)
     }
     if (typeof ifUp != 'undefined') {
-      // debugger
+      circleId = myDownEvent ? myDownEvent.target.dataset.circleid : ''
       var circleListCopy = JSON.parse(JSON.stringify(getList()))
-      // 这里传入点击的dom的dataset属性
-      circleListCopy[myDownEvent.target.dataset.circleid] = {
-        strokeActiveColor: globalVariable.defaultCircle.circleStrokeColor,
-
+      // 实现点击svg元素圆的颜色都去掉
+      if (myEvent.target.nodeName == 'svg') {
+        Object.keys(circleListCopy).forEach(key => {
+          circleListCopy[key].strokeActiveColor = globalVariable.defaultCircle.circleStrokeColor
+        })
+        setCircleList(circleListCopy)
       }
-      setCircleList(circleListCopy)
+
     }
   }
 
@@ -182,7 +160,7 @@ function App(props) {
           })
         }
       </svg>
-
+      <TreeChart></TreeChart>
 
     </>
   )

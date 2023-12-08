@@ -1,6 +1,11 @@
-#moveTest{
-  position: absolute;
+#mySvg{
+  height: 50vh;
+  background: pink;
 }
 circle{
   pointer-events: all;
+}
+#myDivId{
+  height: 100px;
+  
 }

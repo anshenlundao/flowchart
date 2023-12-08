@@ -1,3 +1,9 @@
+/*
+ * @Author: azm
+ * @LastEditors: azm
+ * @Date: 2023-11-03 11:05:32
+ * @LastEditTime: 2023-12-08 11:16:17
+ */
 export function generateHexColor() {
   // 生成一个随机的RGB颜色值
   var r = Math.floor(Math.random() * 256);
@@ -28,8 +34,8 @@ export function followMouseMove(selector,{downCb,moveCb,upCb}){
     document.addEventListener('mousemove', moveCb)
     
   })
-  document.addEventListener('mouseup', () => {
-    upCb&&upCb()
+  document.addEventListener('mouseup', (e) => {
+    upCb&&upCb(e)
     document.removeEventListener('mousemove',moveCb)
   })
 }
