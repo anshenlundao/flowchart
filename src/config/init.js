@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-20 10:13:50
- * @LastEditTime: 2023-10-25 08:59:24
+ * @LastEditTime: 2023-12-12 14:52:16
  * 全局配置文件
  */
 export default{
@@ -20,5 +20,11 @@ export default{
     // 设置圆的y的位置
     circleCy:150
   },
+  defaultRect:{
+    rectX:300,
+    rectY:300,
+    rectWidth:80,
+    rectHeight:80,
+  }
   
 }

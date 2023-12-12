@@ -2,16 +2,16 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-16 14:27:15
- * @LastEditTime: 2023-11-28 10:23:08
+ * @LastEditTime: 2023-12-12 14:52:21
  */
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import globalVariable from '@/config/init'
-import { useStore } from 'react-redux'
+// import { useStore } from 'react-redux'
 export default function Circle(props) {
   const [stroke, setStroke] = useState(globalVariable.defaultCircle.circleStrokeColor)
   const [fill, setFill] = useState(globalVariable.defaultCircle.circleFillColor)
-  const store = useStore()
+  // const store = useStore()
   const [cx, setCx] = useState(globalVariable.defaultCircle.circleCx)
   const [cy, setCy] = useState(globalVariable.defaultCircle.circleCy)
   const [r, setR] = useState(globalVariable.defaultCircle.circleR)

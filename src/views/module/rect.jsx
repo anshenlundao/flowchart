@@ -2,32 +2,32 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-16 14:27:06
- * @LastEditTime: 2023-10-20 13:54:43
+ * @LastEditTime: 2023-12-12 15:03:57
  * 功能：创建一个矩形SVG
  */
 import { useState, useEffect } from 'react'
-import { generateHexColor } from '@/utils/tools.js'
+// import { generateHexColor } from '@/utils/tools.js'
+import globalVariable from '@/config/init'
 export default function Rect(props) {
-  const [color, setColor] = useState("#00ff00")
-  const [pathd, setPathd] = useState("M 10 10 H 90 V 90 H 10 Z")
-  useEffect(() => {
-    setInterval(() => {
-      setColor(generateHexColor())
+  const [x, setX] = useState(globalVariable.defaultRect.rectX)
+  const [y, setY] = useState(globalVariable.defaultRect.rectY)
+  const [width, setWidth] = useState(globalVariable.defaultRect.rectWidth)
+  const [height, setHeight] = useState(globalVariable.defaultRect.rectHeight)
 
-    }, 2000)
+  useEffect(() => {
+    // if (props.initCircleValue?.circleCx) {
+    //   setCx(props.initCircleValue.circleCx)
+    //   setCy(props.initCircleValue.circleCy)
+
+    // }
   }, [])
   return (
     <>
-      {/* <svg
-        version="1.1"
-        baseProfile="full"
-        width="100%" height="100"
-        xmlns="http://www.w3.org/2000/svg"
-      > */}
+      <g style={{ cursor: 'move' }}>
+        <rect x={x} y={y} width={width} height={height} stroke="black" fill="blue" stroke-width="4" />
+      </g>
 
-      <rect width="100%" height="100%" stroke="black" fill="transparent" stroke-width="4" />
 
-      {/* </svg> */}
     </>
   )
 }

@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-12-08 11:27:05
+ * @LastEditTime: 2023-12-12 14:53:39
  * 在React中更新数组中的对象后，界面的更新取决于你如何管理状态和触发重新渲染。
 
 一种常见的做法是使用useState钩子来管理数组的状态，并使用set函数来更新数组。
@@ -16,6 +16,7 @@
  */
 import RectBound from '@/views/module/rect'
 import Circle from '@/views/module/circle'
+import Rect from '@/views/module/rect'
 import { useState, useEffect, useRef } from 'react'
 import globalVariable from '@/config/init'
 import { followMouseMove } from '@/utils/tools'
@@ -51,7 +52,7 @@ function App(props) {
   var myDownEvent;
   var circleId;
   useEffect(() => {
-    var circleListObj = createCircle({ num: 30 })
+    var circleListObj = createCircle({ num: 100 })
     setCircleList(circleListObj)
 
     followMouseMove(svgDomRef.current, {
@@ -81,14 +82,12 @@ function App(props) {
   // 处理圆的逻辑
   /**
    * 
-   * @param {ifActiveStroke} 
-   * true:激活边色 
-   * false:不激活边色
+   * @param { ifDown, ifMove, ifUp }
+   * @param myEvent 
+   * 
    */
-  const handleCircle = ({ ifActiveStroke, ifDown, ifMove, ifUp }, myEvent) => {
-    // 有才能进入
-    if (typeof ifActiveStroke != 'undefined') {
-    }
+  const handleCircle = ({ ifDown, ifMove, ifUp }, myEvent) => {
+
     // 记录点击的操作
     if (typeof ifDown != 'undefined') {
       mouseX = myEvent.clientX;
@@ -132,7 +131,7 @@ function App(props) {
     if (typeof ifUp != 'undefined') {
       circleId = myDownEvent ? myDownEvent.target.dataset.circleid : ''
       var circleListCopy = JSON.parse(JSON.stringify(getList()))
-      // 实现点击svg元素圆的颜色都去掉
+      // 实现点击svg元素(圆之外的元素),圆的颜色都去掉
       if (myEvent.target.nodeName == 'svg') {
         Object.keys(circleListCopy).forEach(key => {
           circleListCopy[key].strokeActiveColor = globalVariable.defaultCircle.circleStrokeColor
@@ -148,7 +147,7 @@ function App(props) {
       <svg
         version="1.1"
         baseProfile="full"
-        width="100%" height="500"
+        width="100%" height="100%"
         xmlns="http://www.w3.org/2000/svg"
         ref={svgDomRef}
         id="mySvg"
@@ -159,8 +158,9 @@ function App(props) {
             return <Circle key={idx} initCircleValue={circleList[circleKey]} circleId={circleKey}></Circle>
           })
         }
+        <Rect></Rect>
       </svg>
-      <TreeChart></TreeChart>
+      {/* <TreeChart></TreeChart> */}
 
     </>
   )
