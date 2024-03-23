@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-20 10:13:50
- * @LastEditTime: 2023-12-12 14:52:16
+ * @LastEditTime: 2024-03-23 10:20:15
  * 全局配置文件
  */
 export default{
@@ -21,10 +21,13 @@ export default{
     circleCy:150
   },
   defaultRect:{
-    rectX:300,
-    rectY:300,
+    rectX:0,
+    rectY:0,
     rectWidth:80,
     rectHeight:80,
+    rectStrokeColor:'purple',
+    activeRectStrokeColor:'green',
+    rectFillColor:'white'
   }
   
 }

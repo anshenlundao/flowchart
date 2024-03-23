@@ -2,7 +2,7 @@
  * @Author: azm
  * @LastEditors: azm
  * @Date: 2023-10-14 15:16:42
- * @LastEditTime: 2023-12-12 14:53:39
+ * @LastEditTime: 2024-03-23 10:26:38
  * 在React中更新数组中的对象后，界面的更新取决于你如何管理状态和触发重新渲染。
 
 一种常见的做法是使用useState钩子来管理数组的状态，并使用set函数来更新数组。
@@ -30,13 +30,18 @@ function App(props) {
     // circle2: {},
     // circle3: {},
   })
+  const [rectList, setRectList, getRectList] = useGetState({
+    // rect1: {},
+    // rect2: {},
+    // rect3: {},
+  })
 
-  function createCircle({ num }) {
-    let circleListObj = {}
+  function createShape({ num, shapeName }) {
+    let shapeListObj = {}
     for (let i = 0; i < num; i++) {
-      circleListObj['circle' + (i + 1)] = {}
+      shapeListObj[shapeName + (i + 1)] = {}
     }
-    return circleListObj
+    return shapeListObj
   }
   // 生成指定个数的圆,在这里不行，会循环了
   // var circleListObj = createCircle({ num: 10 })
@@ -50,26 +55,35 @@ function App(props) {
   var offsetX = 0
   var offsetY = 0
   var myDownEvent;
-  var circleId;
+  var shapeId;
   useEffect(() => {
-    var circleListObj = createCircle({ num: 100 })
+    var circleListObj = createShape({ num: 2, shapeName: 'circle' })
+    var rectListObj = createShape({ num: 2, shapeName: 'rect' })
     setCircleList(circleListObj)
+    setRectList(rectListObj)
 
     followMouseMove(svgDomRef.current, {
       downCb: (downEvent) => {
         console.log(downEvent);
         if (downEvent.target.nodeName == 'circle') {
           myDownEvent = downEvent
-          handleCircle({ ifDown: true }, downEvent)
+          handleShape({ ifDown: true, shapeName: 'circle' }, downEvent)
+        }
+        if (downEvent.target.nodeName == 'rect') {
+          myDownEvent = downEvent
+          handleShape({ ifDown: true, shapeName: 'rect' }, downEvent)
         }
       }, moveCb: (moveEvent) => {
         if (moveEvent.target.nodeName == 'circle') {
-          handleCircle({ ifMove: true }, moveEvent)
+          handleShape({ ifMove: true, shapeName: 'circle' }, moveEvent)
 
+        }
+        if (moveEvent.target.nodeName == 'rect') {
+          handleShape({ ifMove: true, shapeName: 'rect' }, moveEvent)
         }
       },
       upCb: (upEvent) => {
-        handleCircle({ ifUp: true }, upEvent)
+        handleShape({ ifUp: true }, upEvent)
       }
     })
 
@@ -86,7 +100,7 @@ function App(props) {
    * @param myEvent 
    * 
    */
-  const handleCircle = ({ ifDown, ifMove, ifUp }, myEvent) => {
+  const handleShape = ({ ifDown, ifMove, ifUp, shapeName }, myEvent) => {
 
     // 记录点击的操作
     if (typeof ifDown != 'undefined') {
@@ -94,23 +108,37 @@ function App(props) {
       mouseY = myEvent.clientY;
 
       // 这里要获取用户每次点击图形的位置信息
-      const circleInfo = myEvent.target.getBoundingClientRect()
-      offsetX = mouseX - (circleInfo.x + circleInfo.width / 2)
-      offsetY = mouseY - (circleInfo.y + circleInfo.height / 2)
-      var circleListCopy = JSON.parse(JSON.stringify(getList()))
+      const shapeInfo = myEvent.target.getBoundingClientRect()
+
+      if (shapeName == 'circle') {
+        offsetX = mouseX - (shapeInfo.x + shapeInfo.width / 2)
+        offsetY = mouseY - (shapeInfo.y + shapeInfo.height / 2)
+        var shapeListCopy = JSON.parse(JSON.stringify(getList()))
+        var downEventShapeId = myDownEvent.target.dataset.circleid
+        var strokeColor = globalVariable.defaultCircle.circleStrokeColor
+        var strokeActiveColor = globalVariable.defaultCircle.activeCircleStrokeColor
+        var setShapeList = setCircleList
+      }
+      if (shapeName == 'rect') {
+        offsetX = mouseX - (shapeInfo.x)
+        offsetY = mouseY - (shapeInfo.y)
+        var shapeListCopy = JSON.parse(JSON.stringify(getRectList()))
+        var downEventShapeId = myDownEvent.target.dataset.rectid
+        var strokeColor = globalVariable.defaultRect.rectStrokeColor
+        var strokeActiveColor = globalVariable.defaultRect.activeRectStrokeColor
+        var setShapeList = setRectList
+      }
       // 表明点击圆之前上一个也点击了圆,实现点击下一个圆上一个圆颜色去掉
-      if (circleId) {
-        circleListCopy[circleId] = {
-          strokeActiveColor: globalVariable.defaultCircle.circleStrokeColor
-
+      if (shapeId) {
+        shapeListCopy[shapeId] = {
+          strokeActiveColor: strokeColor
         }
-        setCircleList(circleListCopy)
+        setShapeList(shapeListCopy)
       }
-      circleListCopy[myDownEvent.target.dataset.circleid] = {
-        strokeActiveColor: globalVariable.defaultCircle.activeCircleStrokeColor
-
+      shapeListCopy[downEventShapeId] = {
+        strokeActiveColor
       }
-      setCircleList(circleListCopy)
+      setShapeList(shapeListCopy)
 
     }
     // 记录移动的操作
@@ -120,23 +148,45 @@ function App(props) {
       // 计算元素的新位置
       let newElementX = newMouseX - offsetX
       let newElementY = newMouseY - offsetY
-      var circleListCopy = JSON.parse(JSON.stringify(getList()))
-      // 这里传入点击的dom的dataset属性
-      circleListCopy[myDownEvent.target.dataset.circleid] = {
-        circleCx: newElementX,
-        circleCy: newElementY
+      if (shapeName == 'circle') {
+        var shapeListCopy = JSON.parse(JSON.stringify(getList()))
+        var downEventShapeId = myDownEvent.target.dataset.circleid
+        var propsObj = {
+          circleCx: newElementX,
+          circleCy: newElementY
+        }
+        var setShapeList = setCircleList
       }
-      setCircleList(circleListCopy)
+      if (shapeName == 'rect') {
+        console.log(offsetX);
+        var shapeListCopy = JSON.parse(JSON.stringify(getRectList()))
+        var downEventShapeId = myDownEvent.target.dataset.rectid
+        var propsObj = {
+          rectX: newElementX,
+          rectY: newElementY
+        }
+        console.log(propsObj);
+        var setShapeList = setRectList
+      }
+
+      // 这里传入点击的dom的dataset属性
+      shapeListCopy[downEventShapeId] = propsObj
+      setShapeList(shapeListCopy)
     }
     if (typeof ifUp != 'undefined') {
-      circleId = myDownEvent ? myDownEvent.target.dataset.circleid : ''
+      shapeId = myDownEvent ? myDownEvent.target.dataset.circleid || myDownEvent.target.dataset.rectid : ''
       var circleListCopy = JSON.parse(JSON.stringify(getList()))
+      var rectListCopy = JSON.parse(JSON.stringify(getRectList()))
       // 实现点击svg元素(圆之外的元素),圆的颜色都去掉
       if (myEvent.target.nodeName == 'svg') {
         Object.keys(circleListCopy).forEach(key => {
           circleListCopy[key].strokeActiveColor = globalVariable.defaultCircle.circleStrokeColor
         })
         setCircleList(circleListCopy)
+        Object.keys(rectListCopy).forEach(key => {
+          rectListCopy[key].strokeActiveColor = globalVariable.defaultRect.rectStrokeColor
+        })
+        setRectList(rectListCopy)
       }
 
     }
@@ -158,7 +208,12 @@ function App(props) {
             return <Circle key={idx} initCircleValue={circleList[circleKey]} circleId={circleKey}></Circle>
           })
         }
-        <Rect></Rect>
+        {
+          Object.keys(rectList).map((rectKey, idx) => {
+            return <Rect key={idx} initRectValue={rectList[rectKey]} rectId={rectKey}></Rect>
+          })
+        }
+        {/* <Rect initRectValue={}></Rect> */}
       </svg>
       {/* <TreeChart></TreeChart> */}
 
